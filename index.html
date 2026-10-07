@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="Juego para adivinar países por sus banderas"
+    >
+
+    <title>¿Qué país es? 🌍</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <main class="game">
+
+        <section class="game-card">
+
+            <header class="game-header">
+                <div class="logo">
+                    🌍
+                </div>
+
+                <div>
+                    <p class="eyebrow">QUIZ DE BANDERAS</p>
+                    <h1>¿Qué país es?</h1>
+                </div>
+            </header>
+
+            <div class="score">
+                <span>Puntuación</span>
+                <strong id="puntuacion">0</strong>
+            </div>
+
+            <section class="question">
+
+                <p class="question-label">
+                    ¿De qué país es esta bandera?
+                </p>
+
+                <div class="flag-container">
+                    <img
+                        id="bandera"
+                        src=""
+                        alt="Bandera del país"
+                    >
+                </div>
+
+                <p id="mensaje" class="message">
+                    Elige una respuesta
+                </p>
+
+            </section>
+
+            <section
+                id="opciones"
+                class="options"
+                aria-label="Opciones de respuesta"
+            >
+                <!-- Las respuestas se generan con JavaScript -->
+            </section>
+
+            <button
+                id="siguiente"
+                class="next-button"
+                type="button"
+                disabled
+            >
+                Siguiente →
+            </button>
+
+        </section>
+
+        <footer>
+            <p>🌎 Como de inculto puedes llegar a ser</p>
+        </footer>
+
+    </main>
+
+    <script src="app.js"></script>
+
+</body>
+</html>
