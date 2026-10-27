@@ -1,28 +1,184 @@
+
 const bandera = document.querySelector("#bandera");
 const opciones = document.querySelector("#opciones");
-const resultado = document.querySelector("#resultado");
+const mensaje = document.querySelector("#mensaje");
 const puntuacion = document.querySelector("#puntuacion");
 const siguiente = document.querySelector("#siguiente");
 
-let paisCorrecto;
+let paisCorrecto = "";
 let puntuacionActual = 0;
+let paises = [];
+let respondido = false;
+let fallosActuales = 0;
 
+// Configuración del desenfoque
+const DESENFOQUE_INICIAL = 20;
+const REDUCCION_POR_FALLO = 6;
+
+// Obtener los países desde nuestro servidor Express
 async function obtenerPaises() {
-    const response = await fetch("https://restcountries.com/v3.1/all");
-    const datos = await response.json();
-    return datos;
+    mensaje.textContent = "Cargando países...";
+    siguiente.disabled = true;
+
+    try {
+        const response = await fetch("/api/paises");
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const resultado = await response.json();
+
+        console.log("Respuesta completa de la API:", resultado);
+
+        // REST Countries v5: los países están en data.objects
+        paises = (resultado.data?.objects ?? []).filter(pais =>
+            obtenerNombre(pais) !== "Nombre desconocido" &&
+            pais.flag?.url_png
+        );
+
+        if (paises.length < 4) {
+            throw new Error(
+                "La API debe devolver al menos cuatro países con nombre y bandera."
+            );
+        }
+
+        mostrarPregunta();
+    } catch (error) {
+        console.error("Error al obtener países:", error);
+        mensaje.textContent =
+            "No se pudieron cargar los países. Revisa la consola y el servidor.";
+    }
 }
 
-function elegirPaisAleatorio(paises) {
-    const numero = Math.flooor(Math.random() * paises.length);
-    return paises[numero];
+// Obtener el nombre en español cuando esté disponible
+function obtenerNombre(pais) {
+    return (
+        pais.names?.translations?.spa?.common ||
+        pais.names?.common ||
+        "Nombre desconocido"
+    );
 }
 
-function mostrarBandera(pais) {
-    bandera.src = pais.flags.png;
-    bandera.alt = `Bandera de ${pais.name.common}`;
-
-    paisCorrecto = pais.name.common;
+// Elegir un elemento aleatorio
+function aleatorio(lista) {
+    return lista[Math.floor(Math.random() * lista.length)];
 }
 
-jhgkjhhj
+// Mezclar una lista aleatoriamente
+function mezclar(lista) {
+    const copia = [...lista];
+
+    for (let i = copia.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copia[i], copia[j]] = [copia[j], copia[i]];
+    }
+
+    return copia;
+}
+
+// Mostrar una nueva pregunta
+function mostrarPregunta() {
+    if (paises.length < 4) return;
+
+    respondido = false;
+    fallosActuales = 0;
+
+    siguiente.disabled = true;
+    opciones.replaceChildren();
+
+    const pais = aleatorio(paises);
+    paisCorrecto = obtenerNombre(pais);
+
+    // Mostrar la bandera borrosa al comenzar
+    bandera.style.transition = "filter 0.5s ease";
+    bandera.style.filter = `blur(${DESENFOQUE_INICIAL}px)`;
+
+    bandera.src = pais.flag.url_png;
+    bandera.alt = "Adivina el país de esta bandera";
+
+    mensaje.textContent = "¿De qué país es esta bandera?";
+
+    // Crear tres respuestas incorrectas y una correcta
+    const incorrectos = mezclar(
+        paises.filter(p => p !== pais)
+    ).slice(0, 3);
+
+    const respuestas = mezclar([pais, ...incorrectos]);
+
+    respuestas.forEach(p => {
+        const nombre = obtenerNombre(p);
+        const boton = document.createElement("button");
+
+        boton.type = "button";
+        boton.className = "option-button";
+        boton.textContent = nombre;
+
+        boton.addEventListener("click", () => {
+            comprobarRespuesta(nombre, boton);
+        });
+
+        opciones.appendChild(boton);
+    });
+}
+
+// Comprobar la respuesta elegida
+function comprobarRespuesta(respuesta, botonElegido) {
+    if (respondido || botonElegido.disabled) return;
+
+    // Si la respuesta es correcta
+    if (respuesta === paisCorrecto) {
+        respondido = true;
+
+        mensaje.textContent = "¡Correcto! 🎉";
+        puntuacionActual++;
+        puntuacion.textContent = puntuacionActual;
+
+        // Revelar completamente la bandera
+        bandera.style.filter = "blur(0px)";
+
+        // Marcar la respuesta correcta y desactivar las opciones
+        opciones.querySelectorAll("button").forEach(boton => {
+            boton.disabled = true;
+
+            if (boton.textContent === paisCorrecto) {
+                boton.classList.add("correcta");
+            }
+        });
+
+        siguiente.disabled = false;
+        return;
+    }
+
+    // Si la respuesta es incorrecta
+    fallosActuales++;
+
+    botonElegido.disabled = true;
+    botonElegido.classList.add("incorrecta");
+
+    // Reducir el desenfoque con cada fallo
+    const desenfoque = Math.max(
+        0,
+        DESENFOQUE_INICIAL - fallosActuales * REDUCCION_POR_FALLO
+    );
+
+    bandera.style.filter = `blur(${desenfoque}px)`;
+
+    if (desenfoque > 0) {
+        mensaje.textContent =
+            `¡No es ese país! La bandera se ha aclarado. Fallos: ${fallosActuales}`;
+    } else {
+        mensaje.textContent =
+            "La bandera ya está clara. ¡Prueba con otra respuesta!";
+    }
+}
+
+// Pasar a la siguiente pregunta
+siguiente.addEventListener("click", () => {
+    if (respondido) {
+        mostrarPregunta();
+    }
+});
+
+// Iniciar el juego
+obtenerPaises();
