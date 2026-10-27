@@ -18,9 +18,6 @@ function elegirPaisAleatorio(paises) {
     return paises[numero];
 }
 
-const pais = elegirPaisAleatorio(paises);
-
-
 function mostrarBandera(pais) {
     bandera.src = pais.flags.png;
     bandera.alt = `Bandera de ${pais.name.common}`;
