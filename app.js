@@ -90,9 +90,18 @@ function mostrarPregunta() {
     const pais = aleatorio(paises);
     paisCorrecto = obtenerNombre(pais);
 
-    // Mostrar la bandera borrosa al comenzar
-    bandera.style.transition = "filter 0.5s ease";
+    // Ocultar la imagen mientras se prepara la nueva bandera
+    bandera.style.opacity = "0";
+    bandera.style.transition = "none";
     bandera.style.filter = `blur(${DESENFOQUE_INICIAL}px)`;
+
+    bandera.onload = function () {
+        // Mostrar la bandera cuando ya está cargada y borrosa
+        bandera.style.opacity = "1";
+
+        // Volver a activar la transición del desenfoque
+        bandera.style.transition = "filter 0.5s ease";
+    };
 
     bandera.src = pais.flag.url_png;
     bandera.alt = "Adivina el país de esta bandera";
@@ -111,7 +120,7 @@ function mostrarPregunta() {
         const boton = document.createElement("button");
 
         boton.type = "button";
-        boton.className = "option-button";
+        boton.className = "option";
         boton.textContent = nombre;
 
         boton.addEventListener("click", () => {
@@ -130,7 +139,7 @@ function comprobarRespuesta(respuesta, botonElegido) {
     if (respuesta === paisCorrecto) {
         respondido = true;
 
-        mensaje.textContent = "¡Correcto! 🎉";
+        mensaje.textContent = "¡Correcto!";
         puntuacionActual++;
         puntuacion.textContent = puntuacionActual;
 
