@@ -32,9 +32,11 @@ async function obtenerPaises() {
         console.log("Respuesta completa de la API:", resultado);
 
         // REST Countries v5: los países están en data.objects
-        paises = (resultado.data?.objects ?? []).filter(pais =>
+        const listaPaises = resultado.data?.objects ?? [];
+
+        paises = listaPaises.filter(pais =>
             obtenerNombre(pais) !== "Nombre desconocido" &&
-            pais.flag?.url_png
+            pais.codes?.alpha_2
         );
 
         if (paises.length < 4) {
@@ -103,7 +105,9 @@ function mostrarPregunta() {
         bandera.style.transition = "filter 0.5s ease";
     };
 
-    bandera.src = pais.flag.url_png;
+    const codigo = pais.codes.alpha_2.toLowerCase();
+
+    bandera.src = `https://flagcdn.com/w320/${codigo}.png`;
     bandera.alt = "Adivina el país de esta bandera";
 
     mensaje.textContent = "¿De qué país es esta bandera?";

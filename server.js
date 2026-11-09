@@ -1,11 +1,13 @@
-
 const express = require("express");
 const dotenv = require("dotenv");
 
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// Tus archivos HTML, CSS y JS están directamente en la raíz
+app.use(express.static(__dirname));
 
 app.get("/api/paises", async (req, res) => {
     try {
@@ -20,7 +22,7 @@ app.get("/api/paises", async (req, res) => {
         const url =
             "https://api.restcountries.com/countries/v5" +
             "?limit=100" +
-            "&response_fields=names.common,names.translations,flag.url_png";
+            "&response_fields=names.common,names.translations,codes.alpha_2";
 
         const response = await fetch(url, {
             headers: {
@@ -30,7 +32,10 @@ app.get("/api/paises", async (req, res) => {
 
         const texto = await response.text();
 
-        console.log("Estado devuelto por REST Countries:", response.status);
+        console.log(
+            "Estado devuelto por REST Countries:",
+            response.status
+        );
 
         if (!response.ok) {
             console.error("Respuesta de la API:", texto);
@@ -51,6 +56,11 @@ app.get("/api/paises", async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Servidor API en http://localhost:${PORT}`);
-});
+// En local inicia el servidor
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Servidor funcionando en http://localhost:${PORT}`);
+    });
+}
+
+module.exports = app;

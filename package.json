@@ -1,11 +1,10 @@
 {
   "name": "restcountries-game",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "description": "Juego de preguntas sobre banderas",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vite",
+    "dev": "node server.js",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -16,10 +15,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/agusskate/restcountries-game/issues"
-  },
-  "homepage": "https://github.com/agusskate/restcountries-game#readme",
   "devDependencies": {
     "vite": "^8.3.5"
   },
