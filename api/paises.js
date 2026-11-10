@@ -4,7 +4,7 @@ module.exports = async function handler(req, res) {
 
         if (!apiKey) {
             return res.status(500).json({
-                error: "No se encontró la variable API_KEY"
+                error: "No se encontró API_KEY en Vercel"
             });
         }
 
@@ -21,6 +21,8 @@ module.exports = async function handler(req, res) {
 
         const texto = await response.text();
 
+        console.log("Estado de REST Countries:", response.status);
+
         if (!response.ok) {
             console.error("Error de REST Countries:", texto);
 
@@ -30,9 +32,8 @@ module.exports = async function handler(req, res) {
             });
         }
 
-        res.setHeader("Content-Type", "application/json");
-
         return res.status(200).send(texto);
+
     } catch (error) {
         console.error("Error al consultar la API:", error);
 
